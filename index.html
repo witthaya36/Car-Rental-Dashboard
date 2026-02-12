@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการเช่ารถ - Interactive Dashboard</title>
+    
+    <!-- Libraries: Tailwind CSS, Chart.js, Font Awesome, Google Fonts, SheetJS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .card-gradient-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-gradient-2 { background: linear-gradient(135deg, #2af598 0%, #009efd 100%); }
+        .card-gradient-3 { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); }
+        .card-gradient-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        
+        /* Animation for Sync Indicator */
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7); }
+            70% { box-shadow: 0 0 0 5px rgba(72, 187, 120, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0); }
+        }
+        .animate-pulse-green {
+            animation: pulse-green 2s infinite;
+        }
+
+        /* Settings Animation */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-down {
+            animation: fadeInDown 0.3s ease-out forwards;
+        }
+
+        /* Removed Mobile Card View Logic to allow Table Scroll */
+        
+        /* License Plate Style - No Border as requested */
+        .license-plate {
+            padding: 0.125rem 0.5rem;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: 700;
+            color: #1f2937;
+            display: inline-block;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        /* Color Dot */
+        .color-dot {
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            border: 1px solid rgba(0,0,0,0.1);
+            vertical-align: middle;
+        }
+
+        /* Notification Badge Animation */
+        @keyframes ping {
+            75%, 100% { transform: scale(2); opacity: 0; }
+        }
+        .animate-ping-slow {
+            animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Login Screen Overlay -->
+    <div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-200">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md mx-4 animate-fade-in-down">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 mb-4">
+                    <i class="fa-solid fa-car text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">เข้าสู่ระบบจัดการ</h2>
+                <p class="text-gray-500 text-sm mt-2">Car Rental Dashboard</p>
+            </div>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="username ">
+                        <i class="fa-solid fa-user mr-1"></i> ชื่อผู้ใช้งาน 
+                    </label>
+                    <input class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition" id="username" type="text" placeholder="Username" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                        <i class="fa-solid fa-lock mr-1"></i> รหัสผ่าน
+                    </label>
+                    <input class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition" id="password" type="password" placeholder="••••••••" required>
+                    <p id="loginError" class="text-red-500 text-xs mt-2 font-medium hidden"><i class="fa-solid fa-circle-exclamation mr-1"></i>ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง</p>
+                </div>
+                <div class="flex items-center justify-between mt-8">
+                    <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition transform hover:-translate-y-0.5" type="submit">
+                        เข้าสู่ระบบ
+                    </button>
+                </div>
+                <div class="mt-4 text-center text-xs text-gray-400">
+                    <p>Demo Auth: admin / password</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Content (Hidden by default until login) -->
+    <div id="dashboardContent" class="hidden">
+        
+        <!-- Navbar -->
+        <nav class="bg-white shadow-md sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row justify-between h-auto md:h-16 py-2 md:py-0">
+                    <div class="flex items-center justify-between w-full md:w-auto mb-2 md:mb-0">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-car-side text-indigo-600 text-2xl mr-3"></i>
+                            <h1 class="text-lg md:text-xl font-bold text-gray-800">Car Rental Dashboard</h1>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-end space-x-3 w-full md:w-auto">
+                        
+                        <div class="h-6 w-px bg-gray-300 hidden md:block"></div>
+
+                        <!-- Auto Sync Toggle -->
+                        <div class="flex items-center bg-gray-50 rounded-full px-3 py-1.5 border border-gray-200">
+                            <span class="text-[10px] md:text-xs font-medium text-gray-500 mr-2">Auto Sync</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="autoSyncToggle" class="sr-only peer" onchange="toggleAutoSync()">
+                                <div class="w-7 h-4 md:w-9 md:h-5 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 md:after:h-4 md:after:w-4 after:transition-all peer-checked:bg-green-500"></div>
+                            </label>
+                            <div id="syncIndicator" class="ml-2 w-2 h-2 rounded-full bg-gray-300 transition-all duration-300" title="สถานะการซิงค์"></div>
+                        </div>
+
+                        <button onclick="toggleSettings()" class="text-gray-500 hover:text-indigo-600 transition p-2" title="ตั้งค่า">
+                            <i class="fa-solid fa-gear text-lg md:text-xl"></i>
+                        </button>
+
+                        <!-- Notification Bell -->
+                        <div class="relative">
+                            <button onclick="toggleNotifications()" class="text-gray-500 hover:text-indigo-600 transition p-2 relative">
+                                <i class="fa-solid fa-bell text-xl"></i>
+                                <!-- Badge Count -->
+                                <span id="notifyBadge" class="hidden absolute top-0 right-0 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center text-[10px] text-white font-bold ring-2 ring-white">
+                                    0
+                                </span>
+                                <!-- Ping Animation -->
+                                <span id="notifyPing" class="hidden absolute top-0 right-0 h-4 w-4 rounded-full bg-red-400 opacity-75 animate-ping-slow"></span>
+                            </button>
+
+                            <!-- Notification Dropdown -->
+                            <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-72 md:w-80 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden transform origin-top-right transition-all">
+                                <div class="px-4 py-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                                    <h3 class="text-sm font-bold text-gray-700">แจ้งเตือนคืนรถ</h3>
+                                    <span class="text-xs text-gray-500" id="notifyDate"></span>
+                                </div>
+                                <div id="notificationList" class="max-h-64 overflow-y-auto">
+                                    <div class="p-4 text-center text-sm text-gray-500">ไม่มีการแจ้งเตือน</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="fetchData()" id="refreshBtn" class="bg-indigo-600 text-white px-3 py-1.5 md:px-3 md:py-2 rounded-lg hover:bg-indigo-700 transition flex items-center shadow-lg transform hover:scale-105 active:scale-95 text-xs md:text-sm">
+                            <i class="fa-solid fa-arrows-rotate mr-1 md:mr-2"></i> <span>อัปเดต</span>
+                        </button>
+
+                        <!-- Logout Button -->
+                        <button onclick="logout()" class="text-red-500 hover:text-red-700 transition p-2 ml-1" title="ออกจากระบบ">
+                            <i class="fa-solid fa-power-off text-lg md:text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Error/Status Message -->
+        <div id="statusMessage" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 mx-auto max-w-7xl mt-4 rounded shadow-sm" role="alert">
+            <p class="font-bold"><i class="fa-solid fa-circle-exclamation mr-2"></i>แจ้งเตือน</p>
+            <p id="statusText" class="text-sm mt-1">Something went wrong.</p>
+        </div>
+
+        <!-- Settings Panel (Hidden by default) -->
+        <div id="settingsPanel" class="hidden bg-white border-b border-gray-200 p-6 shadow-inner animate-fade-in-down">
+            <div class="max-w-4xl mx-auto">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fa-brands fa-google-drive text-green-500 mr-2"></i> เชื่อมต่อ Google Sheet (Real-time)
+                </h3>
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <h4 class="font-semibold text-blue-800 mb-2 text-sm">การเชื่อมต่อ:</h4>
+                    <p class="text-sm text-blue-700">
+                        ระบบกำลังเชื่อมต่อกับไฟล์ Google Sheet ของคุณโดยอัตโนมัติ หากต้องการเปลี่ยนไฟล์ ให้วางลิงก์ใหม่ด้านล่าง
+                    </p>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-3">
+                    <input type="text" id="sheetUrl" placeholder="วางลิงก์ Google Sheet ที่นี่..." class="flex-1 border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm">
+                    <button onclick="saveSettings()" class="bg-indigo-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-indigo-700 shadow-sm transition transform hover:scale-105 active:scale-95">
+                        เชื่อมต่อทันที
+                    </button>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <button onclick="useSampleData()" class="text-gray-400 text-xs hover:text-gray-600 underline">รีเซ็ตเป็นข้อมูลตัวอย่าง (Reset)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
+            
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-6 mb-6 md:mb-8">
+                <!-- Total Revenue -->
+                <div class="glass-panel p-4 md:p-6 relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-indigo-500"></div>
+                    <div class="flex flex-col md:flex-row justify-between items-start">
+                        <div>
+                            <p class="text-xs md:text-sm font-medium text-gray-500">ยอดเงินหมุนเวียน</p>
+                            <h3 class="text-lg md:text-3xl font-bold text-gray-800 mt-1 md:mt-2" id="totalRevenue">0 ฿</h3>
+                        </div>
+                        <div class="hidden md:block p-3 bg-indigo-100 rounded-full text-indigo-600">
+                            <i class="fa-solid fa-sack-dollar text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Net Income -->
+                <div class="glass-panel p-4 md:p-6 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-teal-500"></div>
+                    <div class="flex flex-col md:flex-row justify-between items-start">
+                        <div>
+                            <p class="text-xs md:text-sm font-medium text-gray-500">รายได้สุทธิ (หักมัดจำ)</p>
+                            <h3 class="text-lg md:text-3xl font-bold text-teal-600 mt-1 md:mt-2" id="netIncome">0 ฿</h3>
+                        </div>
+                        <div class="hidden md:block p-3 bg-teal-100 rounded-full text-teal-600">
+                            <i class="fa-solid fa-coins text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Rentals -->
+                <div class="glass-panel p-4 md:p-6 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-orange-500"></div>
+                    <div class="flex flex-col md:flex-row justify-between items-start">
+                        <div>
+                            <p class="text-xs md:text-sm font-medium text-gray-500">รถที่กำลังเช่าอยู่</p>
+                            <h3 class="text-lg md:text-3xl font-bold text-gray-800 mt-1 md:mt-2" id="activeRentals">0 คัน</h3>
+                        </div>
+                        <div class="hidden md:block p-3 bg-orange-100 rounded-full text-orange-600">
+                            <i class="fa-solid fa-clock text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Deposit -->
+                <div class="glass-panel p-4 md:p-6 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-green-500"></div>
+                    <div class="flex flex-col md:flex-row justify-between items-start">
+                        <div>
+                            <p class="text-xs md:text-sm font-medium text-gray-500">เงินมัดจำ (ที่ถืออยู่)</p>
+                            <h3 class="text-lg md:text-3xl font-bold text-gray-800 mt-1 md:mt-2" id="totalDeposit">0 ฿</h3>
+                        </div>
+                        <div class="hidden md:block p-3 bg-green-100 rounded-full text-green-600">
+                            <i class="fa-solid fa-hand-holding-dollar text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Cars -->
+                <div class="glass-panel p-4 md:p-6 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-blue-500"></div>
+                    <div class="flex flex-col md:flex-row justify-between items-start">
+                        <div>
+                            <p class="text-xs md:text-sm font-medium text-gray-500">จำนวนการเช่าทั้งหมด</p>
+                            <h3 class="text-lg md:text-3xl font-bold text-gray-800 mt-1 md:mt-2" id="totalTransactions">0 รายการ</h3>
+                        </div>
+                        <div class="hidden md:block p-3 bg-blue-100 rounded-full text-blue-600">
+                            <i class="fa-solid fa-clipboard-list text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Main Bar Chart -->
+                <div class="glass-panel p-4 md:p-6 lg:col-span-2">
+                    <h3 class="text-base md:text-lg font-bold text-gray-700 mb-4 flex items-center"><i class="fa-solid fa-chart-simple mr-2 text-indigo-500"></i>รายได้แยกตามรุ่นรถ</h3>
+                    <div class="relative h-60 md:h-72 w-full">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Pie Chart -->
+                <div class="glass-panel p-4 md:p-6">
+                    <h3 class="text-base md:text-lg font-bold text-gray-700 mb-4 flex items-center"><i class="fa-solid fa-chart-pie mr-2 text-pink-500"></i>สถานะการเช่า</h3>
+                    <div class="relative h-56 md:h-64 w-full flex justify-center">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="text-xs text-gray-400">อัปเดตล่าสุด: <span id="lastUpdate">Just now</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table Section -->
+            <div class="glass-panel p-4 md:p-6">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                    <h3 class="text-base md:text-lg font-bold text-gray-700 mb-4 md:mb-0 w-full md:w-auto"><i class="fa-solid fa-table-list mr-2 text-green-500"></i>รายการเช่าล่าสุด</h3>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <div class="relative flex-1 md:w-64">
+                            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="ค้นหาชื่อ, ทะเบียน..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                            <i class="fa-solid fa-search absolute left-3 top-2.5 text-gray-400"></i>
+                        </div>
+                        <button onclick="exportWeeklyExcel()" class="bg-green-600 text-white px-3 py-2 rounded-full hover:bg-green-700 transition flex items-center text-sm shadow-md whitespace-nowrap">
+                            <i class="fa-solid fa-file-excel mr-2"></i> Export Excel
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200" id="rentalTable">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">ลำดับ</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">รุ่นรถ</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">ทะเบียน</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">สีรถ</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">ลูกค้า</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">เบอร์โทร</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">วันเช่า - วันคืน</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">จำนวนวัน</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">หมวก</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">ค่าเช่ารถ</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">มัดจำ</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">ยอดรวม</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="tableBody">
+                            <!-- Rows will be populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Controls -->
+                <div class="flex flex-col sm:flex-row items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4 gap-3 sm:gap-0" id="paginationControls">
+                    <div class="w-full sm:w-auto text-center sm:text-left">
+                        <p class="text-xs sm:text-sm text-gray-700">
+                            แสดง <span class="font-medium" id="pageStart">0</span> ถึง <span class="font-medium" id="pageEnd">0</span> จาก <span class="font-medium" id="totalItems">0</span> รายการ
+                        </p>
+                    </div>
+                    
+                    <div class="w-full sm:w-auto flex justify-center">
+                        <div class="flex gap-2 sm:hidden">
+                            <button onclick="changePage(currentPage - 1)" id="btnPrevMobile" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50">
+                                <i class="fa-solid fa-chevron-left mr-1"></i> ก่อนหน้า
+                            </button>
+                            <button onclick="changePage(currentPage + 1)" id="btnNextMobile" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50">
+                                ถัดไป <i class="fa-solid fa-chevron-right ml-1"></i>
+                            </button>
+                        </div>
+
+                        <nav class="hidden sm:isolate sm:inline-flex sm:-space-x-px sm:rounded-md sm:shadow-sm" aria-label="Pagination" id="paginationNumbers">
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // ---------------------------------------------------------
+        // 0. AUTHENTICATION LOGIC
+        // ---------------------------------------------------------
+        const AUTH_USER = 'admin999';
+        const AUTH_PASS = '0123456789';
+
+        function checkAuth() {
+            const isLoggedIn = sessionStorage.getItem('carRentalAuth') === 'true';
+            const loginScreen = document.getElementById('loginScreen');
+            const dashboardContent = document.getElementById('dashboardContent');
+
+            if (isLoggedIn) {
+                loginScreen.classList.add('hidden');
+                dashboardContent.classList.remove('hidden');
+                fetchData(); // Fetch data only after login
+            } else {
+                loginScreen.classList.remove('hidden');
+                dashboardContent.classList.add('hidden');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const errorMsg = document.getElementById('loginError');
+
+            if (user === AUTH_USER && pass === AUTH_PASS) {
+                sessionStorage.setItem('carRentalAuth', 'true');
+                errorMsg.classList.add('hidden');
+                document.getElementById('loginForm').reset();
+                checkAuth();
+            } else {
+                errorMsg.classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('carRentalAuth');
+            
+            // Stop auto sync if running
+            if (autoSyncInterval) {
+                clearInterval(autoSyncInterval);
+                autoSyncInterval = null;
+                document.getElementById('autoSyncToggle').checked = false;
+                document.getElementById('syncIndicator').className = 'ml-2 w-2 h-2 rounded-full bg-gray-300 transition-all duration-300';
+            }
+            
+            checkAuth();
+        }
+
+
+        // ---------------------------------------------------------
+        // 1. DATA HANDLING
+        // ---------------------------------------------------------
+
+        const DEFAULT_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1a2Pz7NOBuzswKGB-AyYdwXXDG6QhBWzSDkSoBUhnKiU/export?format=csv';
+
+        const COLUMN_MAP = {
+            id: 0, 
+            model: 1, 
+            plate: 2, 
+            color: 3, 
+            customer: 4,
+            phone: 5, 
+            startDate: 6, 
+            endDate: 7, 
+            time: 8, 
+            duration: 9, 
+            rate: 10, 
+            deposit: 11, 
+            total: 12, 
+            status: 13, 
+            helmet: 14
+        };
+
+        const SAMPLE_CSV_DATA = `ลำดับ,รุ่นรถ ,ทะเบียน , สีรถ,ชื่อลูกค้า,เบอร์โทรติดต่อ,วันเช่า,วันคืน,เวลา,จำนวนวัน,ค่าเช่า/วัน,มัดจำ (DP),ยอดรวม,สถานะ,หมวก
+1,ADV 160,7068,แดง,คุณสมชาย,081-111-1111,29/01/26,12/02/26,15:00,14,215,"3,000","6,010",คืนแล้ว,1 ใบ
+2,Forza,1222,ดำ,O,089-999-9999,10/02/26,13/02/26,14:00,3,600,"1,000","2,800",กำลังเช่า,2 ใบ
+3,Forza,5555,น้ำเงิน,O,086-666-6666,11/02/26,14/02/26,15:00,3,600,"1,000","2,800",จอง,1 ใบ`;
+
+        let rawData = [];
+        let charts = {};
+        let autoSyncInterval = null;
+        let isFetching = false;
+        let alerts = [];
+        
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        let searchText = '';
+
+        function showStatus(msg, isError = false) {
+            const el = document.getElementById('statusMessage');
+            const txt = document.getElementById('statusText');
+            if (msg) {
+                el.classList.remove('hidden');
+                txt.innerHTML = msg;
+                if (isError) {
+                    el.className = "bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 mx-auto max-w-7xl mt-4 rounded shadow-sm";
+                } else {
+                    el.className = "bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 mx-auto max-w-7xl mt-4 rounded shadow-sm";
+                }
+                // Auto hide after 5 seconds if success
+                if (!isError) setTimeout(() => el.classList.add('hidden'), 5000);
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+
+        function parseCurrency(str) {
+            if (!str) return 0;
+            const cleanStr = String(str).replace(/["',]/g, '').trim();
+            const val = parseFloat(cleanStr);
+            return isNaN(val) ? 0 : val;
+        }
+
+        function parseCSV(text) {
+            const rows = [];
+            let currentRow = [];
+            let currentCell = '';
+            let insideQuote = false;
+
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const nextChar = text[i + 1];
+
+                if (char === '"') {
+                    if (insideQuote && nextChar === '"') {
+                        currentCell += '"';
+                        i++;
+                    } else {
+                        insideQuote = !insideQuote;
+                    }
+                } else if (char === ',' && !insideQuote) {
+                    currentRow.push(currentCell.trim());
+                    currentCell = '';
+                } else if ((char === '\r' || char === '\n') && !insideQuote) {
+                    if (char === '\r' && nextChar === '\n') i++;
+                    currentRow.push(currentCell.trim());
+                    if (currentRow.length > 1) rows.push(currentRow);
+                    currentRow = [];
+                    currentCell = '';
+                } else {
+                    currentCell += char;
+                }
+            }
+            if (currentCell) currentRow.push(currentCell.trim());
+            if (currentRow.length > 1) rows.push(currentRow);
+            
+            return rows;
+        }
+
+        function processData(csvText) {
+            const rows = parseCSV(csvText);
+            if (rows.length > 0) rows.shift(); // Remove header
+
+            return rows
+                .filter(r => r[COLUMN_MAP.model] && r[COLUMN_MAP.model].trim() !== '')
+                .map(r => ({
+                    id: r[COLUMN_MAP.id] || '-',
+                    model: r[COLUMN_MAP.model] ? r[COLUMN_MAP.model].trim() : '-',
+                    plate: r[COLUMN_MAP.plate] ? r[COLUMN_MAP.plate].trim() : '-',
+                    color: r[COLUMN_MAP.color] ? r[COLUMN_MAP.color].trim() : '-',
+                    customer: r[COLUMN_MAP.customer] ? r[COLUMN_MAP.customer].trim() : '-',
+                    phone: r[COLUMN_MAP.phone] ? r[COLUMN_MAP.phone].trim() : '-',
+                    startDate: r[COLUMN_MAP.startDate] || '-',
+                    endDate: r[COLUMN_MAP.endDate] || '-',
+                    duration: r[COLUMN_MAP.duration] ? r[COLUMN_MAP.duration].trim() : '-',
+                    rate: parseCurrency(r[COLUMN_MAP.rate]),
+                    total: parseCurrency(r[COLUMN_MAP.total]),
+                    deposit: parseCurrency(r[COLUMN_MAP.deposit]),
+                    status: r[COLUMN_MAP.status] ? r[COLUMN_MAP.status].trim() : 'ไม่ระบุ',
+                    helmet: r[COLUMN_MAP.helmet] ? r[COLUMN_MAP.helmet].trim() : '-'
+                }));
+        }
+
+        async function fetchData(isSilent = false) {
+            if (isFetching) return;
+            isFetching = true;
+            showStatus(null); 
+
+            const refreshBtn = document.getElementById('refreshBtn');
+            const refreshIcon = refreshBtn.querySelector('i');
+            const syncIndicator = document.getElementById('syncIndicator');
+            
+            if (!isSilent) {
+                refreshIcon.classList.add('fa-spin');
+                refreshBtn.classList.add('opacity-75');
+            } else {
+                if(syncIndicator) syncIndicator.classList.add('animate-pulse');
+            }
+
+            let storedUrl = localStorage.getItem('carRentalSheetUrl');
+            if (!storedUrl) {
+                storedUrl = DEFAULT_SHEET_URL;
+                document.getElementById('sheetUrl').value = DEFAULT_SHEET_URL; 
+            } else {
+                document.getElementById('sheetUrl').value = storedUrl;
+            }
+            
+            try {
+                let csvText = '';
+                const cacheBusterUrl = storedUrl.includes('?') 
+                    ? `${storedUrl}&t=${new Date().getTime()}` 
+                    : `${storedUrl}?t=${new Date().getTime()}`;
+                
+                try {
+                    const proxyUrl1 = `https://api.allorigins.win/raw?url=${encodeURIComponent(cacheBusterUrl)}`;
+                    const response1 = await fetch(proxyUrl1, { cache: 'no-store' });
+                    if (response1.ok) {
+                        csvText = await response1.text();
+                    } else {
+                        throw new Error('AllOrigins failed');
+                    }
+                } catch (proxyError1) {
+                    console.warn("Proxy 1 failed, trying Proxy 2...", proxyError1);
+                    try {
+                        const proxyUrl2 = `https://corsproxy.io/?${encodeURIComponent(cacheBusterUrl)}`;
+                        const response2 = await fetch(proxyUrl2, { cache: 'no-store' });
+                        if (response2.ok) {
+                            csvText = await response2.text();
+                        } else {
+                             throw new Error('CORSProxy failed');
+                        }
+                    } catch (proxyError2) {
+                         console.warn("Proxy 2 failed, trying direct fetch...", proxyError2);
+                         const response3 = await fetch(cacheBusterUrl, { cache: 'no-store' });
+                         if (!response3.ok) throw new Error(`Direct error ${response3.status}`);
+                         csvText = await response3.text();
+                    }
+                }
+
+                if (csvText.trim().toLowerCase().startsWith('<!doctype html') || csvText.includes('<html')) {
+                    throw new Error("ลิงก์ไม่ถูกต้อง: ระบบได้รับหน้าเว็บ HTML แทนที่จะเป็นไฟล์ CSV");
+                }
+
+                rawData = processData(csvText);
+                updateDashboard();
+                
+                const timeString = new Date().toLocaleTimeString('th-TH');
+                document.getElementById('lastUpdate').innerText = timeString;
+                if (!isSilent) showStatus("เชื่อมต่อข้อมูลสำเร็จ! (" + timeString + ")", false);
+
+            } catch (error) {
+                console.error("Fetch error:", error);
+                
+                let errorMsg = error.message;
+                if(errorMsg.includes('Failed to fetch') || errorMsg.includes('Connection failed')) {
+                    errorMsg = "ไม่สามารถเชื่อมต่อ Google Sheet ได้ (ติดสิทธิ์การเข้าถึงหรือ CORS)";
+                }
+                
+                if (!isSilent || errorMsg.includes('ลิงก์ไม่ถูกต้อง') || errorMsg.includes('ไม่สามารถเชื่อมต่อ')) {
+                    showStatus(`<strong>เกิดข้อผิดพลาด:</strong> ${errorMsg}<br><span class="text-xs">กำลังลองใหม่ในครั้งถัดไป...</span>`, true);
+                    if(errorMsg.includes('ลิงก์ไม่ถูกต้อง')) {
+                         document.getElementById('settingsPanel').classList.remove('hidden');
+                    }
+                }
+            } finally {
+                isFetching = false;
+                if (!isSilent) {
+                    refreshIcon.classList.remove('fa-spin');
+                    refreshBtn.classList.remove('opacity-75');
+                }
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 2. AUTO SYNC LOGIC
+        // ---------------------------------------------------------
+
+        function toggleAutoSync() {
+            const toggle = document.getElementById('autoSyncToggle');
+            const indicator = document.getElementById('syncIndicator');
+            
+            if (toggle.checked) {
+                const storedUrl = localStorage.getItem('carRentalSheetUrl') || DEFAULT_SHEET_URL;
+                indicator.className = 'ml-2 w-2 h-2 rounded-full bg-green-500 animate-pulse-green transition-all duration-300';
+                fetchData(true); 
+                autoSyncInterval = setInterval(() => {
+                    fetchData(true);
+                }, 5000); 
+            } else {
+                clearInterval(autoSyncInterval);
+                autoSyncInterval = null;
+                indicator.className = 'ml-2 w-2 h-2 rounded-full bg-gray-300 transition-all duration-300';
+            }
+        }
+
+        function updateDashboard() {
+            updateKPIs();
+            renderCharts();
+            renderTable();
+            checkNotifications();
+        }
+
+        function parseDate(dateStr) {
+            if (!dateStr) return null;
+            try {
+                const parts = dateStr.split('/');
+                if (parts.length === 3) {
+                    let year = parseInt(parts[2], 10);
+                    if (year < 100) year += 2000;
+                    return new Date(year, parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+                }
+            } catch (e) {
+                console.error("Date parse error", e);
+            }
+            return null;
+        }
+
+        function checkNotifications() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            alerts = []; 
+
+            rawData.forEach(item => {
+                if (item.status.includes('เช่าอยู่') || item.status.includes('กำลังเช่า')) {
+                    const returnDate = parseDate(item.endDate);
+                    if (returnDate) {
+                        const timeDiff = returnDate - today;
+                        const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+                        if (daysDiff < 0) {
+                            alerts.push({
+                                type: 'overdue',
+                                item: item,
+                                msg: `เกินกำหนด ${Math.abs(daysDiff)} วัน`
+                            });
+                        } else if (daysDiff === 0) {
+                            alerts.push({
+                                type: 'due',
+                                item: item,
+                                msg: `รุ่นรถ ${item.model} ทะเบียน ${item.plate}`
+                            });
+                        }
+                    }
+                }
+            });
+
+            const badge = document.getElementById('notifyBadge');
+            const ping = document.getElementById('notifyPing');
+            const list = document.getElementById('notificationList');
+            document.getElementById('notifyDate').innerText = today.toLocaleDateString('th-TH');
+
+            if (alerts.length > 0) {
+                badge.innerText = alerts.length;
+                badge.classList.remove('hidden');
+                ping.classList.remove('hidden');
+                
+                list.innerHTML = '';
+                alerts.forEach(alert => {
+                    const isOverdue = alert.type === 'overdue';
+                    const colorClass = isOverdue ? 'bg-red-50 text-red-700 border-red-200' : 'bg-orange-50 text-orange-700 border-orange-200';
+                    const icon = isOverdue ? 'fa-circle-exclamation' : 'fa-clock';
+                    const showSubtitle = isOverdue; 
+
+                    const div = document.createElement('div');
+                    div.className = `p-3 border-b ${colorClass} border-opacity-50 last:border-b-0`;
+                    div.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="font-bold text-sm"><i class="fa-solid ${icon} mr-1"></i> ${alert.msg}</div>
+                                ${showSubtitle ? `<div class="text-xs mt-1 font-semibold">${alert.item.model} (${alert.item.plate})</div>` : ''}
+                                <div class="text-xs mt-0.5 opacity-80">ลูกค้า: ${alert.item.customer}</div>
+                            </div>
+                            <div class="text-xs font-mono bg-white bg-opacity-50 px-1 rounded ml-2 whitespace-nowrap">
+                                ${alert.item.endDate}
+                            </div>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+
+            } else {
+                badge.classList.add('hidden');
+                ping.classList.add('hidden');
+                list.innerHTML = `<div class="p-4 text-center text-sm text-gray-500"><i class="fa-regular fa-calendar-check text-2xl mb-2 text-green-400 block"></i>ไม่มีรายการต้องคืนวันนี้</div>`;
+            }
+        }
+
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('notificationDropdown');
+            const button = document.querySelector('button[onclick="toggleNotifications()"]');
+            if (!dropdown.classList.contains('hidden') && !dropdown.contains(event.target) && !button.contains(event.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function updateKPIs() {
+            const totalRevenue = rawData.reduce((acc, curr) => acc + curr.total, 0);
+            
+            const netIncome = rawData.reduce((acc, curr) => {
+                if (curr.status.includes('คืนแล้ว')) {
+                    return acc + (curr.total - curr.deposit);
+                }
+                return acc;
+            }, 0);
+
+            const activeRentals = rawData.filter(r => r.status.includes('เช่าอยู่') || r.status.includes('Active') || r.status.includes('กำลังเช่า')).length;
+            
+            const totalDeposit = rawData.reduce((acc, curr) => {
+                if (curr.status.includes('จอง') || curr.status.includes('เช่าอยู่') || curr.status.includes('กำลังเช่า')) {
+                    return acc + curr.deposit;
+                }
+                return acc;
+            }, 0);
+            
+            document.getElementById('totalRevenue').innerText = totalRevenue.toLocaleString() + ' ฿';
+            document.getElementById('netIncome').innerText = netIncome.toLocaleString() + ' ฿';
+            document.getElementById('activeRentals').innerText = activeRentals + ' คัน';
+            document.getElementById('totalDeposit').innerText = totalDeposit.toLocaleString() + ' ฿';
+            document.getElementById('totalTransactions').innerText = rawData.length + ' รายการ';
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            renderTable();
+        }
+
+        function getColorCode(thaiColorName) {
+            const colorMap = {
+                'แดง': '#ef4444',
+                'ดำ': '#1f2937',
+                'ขาว': '#ffffff',
+                'น้ำเงิน': '#3b82f6',
+                'เหลือง': '#eab308',
+                'เขียว': '#22c55e',
+                'เทา': '#6b7280',
+                'บรอนซ์': '#9ca3af',
+                'ส้ม': '#f97316',
+                'ชมพู': '#ec4899',
+                'ม่วง': '#a855f7',
+                'ฟ้า': '#06b6d4',
+                'ทอง': '#d97706'
+            };
+            return colorMap[thaiColorName.trim()] || '#94a3b8';
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            let filteredData = [...rawData].reverse(); 
+            
+            if (searchText) {
+                const lowerSearch = searchText.toLowerCase();
+                filteredData = filteredData.filter(item => 
+                    String(item.model).toLowerCase().includes(lowerSearch) || 
+                    String(item.customer).toLowerCase().includes(lowerSearch) ||
+                    String(item.phone).toLowerCase().includes(lowerSearch) || 
+                    String(item.plate).toLowerCase().includes(lowerSearch) || 
+                    String(item.id).toLowerCase().includes(lowerSearch)
+                );
+            }
+
+            const totalRows = filteredData.length;
+            const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = Math.min(startIndex + rowsPerPage, totalRows);
+            const paginatedData = filteredData.slice(startIndex, endIndex);
+
+            if (paginatedData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="13" class="text-center py-4 text-gray-500">ไม่พบข้อมูล</td></tr>`;
+                document.getElementById('pageStart').innerText = '0';
+                document.getElementById('pageEnd').innerText = '0';
+                document.getElementById('totalItems').innerText = '0';
+                renderPaginationButtons(0);
+                return;
+            }
+
+            paginatedData.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-indigo-50 transition';
+                
+                let statusColor = 'bg-gray-100 text-gray-800';
+                if(item.status.includes('คืนแล้ว')) statusColor = 'bg-green-100 text-green-800';
+                else if(item.status.includes('เช่าอยู่') || item.status.includes('กำลังเช่า')) statusColor = 'bg-yellow-100 text-yellow-800';
+                else if(item.status.includes('จอง')) statusColor = 'bg-blue-100 text-blue-800';
+                
+                // Colorize Deposit Logic
+                let depositStyle = 'text-red-600 font-bold'; // Default for held deposit
+                let currentTotal = item.total; // Default total
+                
+                if(item.status.includes('คืนแล้ว')) {
+                    depositStyle = 'text-green-600 font-medium'; // Returned
+                    currentTotal = item.total - item.deposit; // Deduct deposit if returned
+                }
+
+                const cssColor = getColorCode(item.color || '');
+                const isWhite = cssColor === '#ffffff';
+
+                const displayIndex = startIndex + index + 1;
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${displayIndex}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-bold">${item.model}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                        <span class="license-plate">${item.plate}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
+                        <span title="${item.color}" class="inline-flex items-center">
+                            <span class="color-dot" style="background-color: ${cssColor}; ${isWhite ? 'border: 1px solid #d1d5db;' : ''}"></span>
+                            <span class="ml-1">${item.color}</span>
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${item.customer}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <i class="fa-solid fa-phone mr-1 text-xs"></i> ${item.phone}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex flex-row items-center gap-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200" title="วันเช่า">
+                                <i class="fa-solid fa-calendar-plus mr-1.5 hidden md:inline"></i> ${item.startDate || '-'}
+                            </span>
+                            <i class="fa-solid fa-arrow-right-long text-gray-400 text-xs"></i>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200" title="วันคืน">
+                                <i class="fa-solid fa-calendar-minus mr-1.5 hidden md:inline"></i> ${item.endDate || '-'}
+                            </span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
+                        <span class="bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md text-xs font-bold border border-indigo-100 shadow-sm">${item.duration} วัน</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
+                        <span><i class="fa-solid fa-helmet-safety text-gray-400 mr-1"></i> ${item.helmet}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-800 font-medium">
+                        ${item.rate.toLocaleString()} ฿
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold text-center ${depositStyle}">${item.deposit.toLocaleString()} ฿</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold text-center">
+                        ${item.status.includes('คืนแล้ว') ? `<span class="text-green-600" title="หักมัดจำแล้ว">${currentTotal.toLocaleString()} ฿</span>` : `${currentTotal.toLocaleString()} ฿`}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
+                            ${item.status}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('pageStart').innerText = startIndex + 1;
+            document.getElementById('pageEnd').innerText = endIndex;
+            document.getElementById('totalItems').innerText = totalRows;
+            renderPaginationButtons(totalPages);
+        }
+
+        function renderPaginationButtons(totalPages) {
+            const nav = document.getElementById('paginationNumbers');
+            nav.innerHTML = '';
+            
+            // Previous Button
+            const prevBtn = document.createElement('button');
+            prevBtn.className = "relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 " + (currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100');
+            prevBtn.innerHTML = '<span class="sr-only">Previous</span><i class="fa-solid fa-chevron-left h-5 w-5"></i>';
+            prevBtn.onclick = () => { if(currentPage > 1) changePage(currentPage - 1); };
+            nav.appendChild(prevBtn);
+
+            let pagesToShow = [];
+            if (totalPages <= 7) {
+                for (let i = 1; i <= totalPages; i++) pagesToShow.push(i);
+            } else {
+                if (currentPage <= 4) {
+                    pagesToShow = [1, 2, 3, 4, 5, '...', totalPages];
+                } else if (currentPage >= totalPages - 3) {
+                    pagesToShow = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                } else {
+                    pagesToShow = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+                }
+            }
+
+            pagesToShow.forEach(p => {
+                const btn = document.createElement('button');
+                if (p === '...') {
+                     btn.className = "relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0";
+                     btn.innerText = '...';
+                } else {
+                    const isActive = p === currentPage;
+                    btn.className = isActive 
+                        ? "relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        : "relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0";
+                    btn.innerText = p;
+                    btn.onclick = () => changePage(p);
+                }
+                nav.appendChild(btn);
+            });
+
+            // Next Button
+            const nextBtn = document.createElement('button');
+            nextBtn.className = "relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 " + (currentPage === totalPages || totalPages === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100');
+            nextBtn.innerHTML = '<span class="sr-only">Next</span><i class="fa-solid fa-chevron-right h-5 w-5"></i>';
+            nextBtn.onclick = () => { if(currentPage < totalPages) changePage(currentPage + 1); };
+            nav.appendChild(nextBtn);
+            
+            // Update Mobile Buttons too
+            const btnPrevMobile = document.getElementById('btnPrevMobile');
+            const btnNextMobile = document.getElementById('btnNextMobile');
+            
+            if (btnPrevMobile) {
+                btnPrevMobile.disabled = currentPage === 1;
+                btnPrevMobile.classList.toggle('opacity-50', currentPage === 1);
+            }
+            
+            if (btnNextMobile) {
+                btnNextMobile.disabled = currentPage === totalPages || totalPages === 0;
+                btnNextMobile.classList.toggle('opacity-50', currentPage === totalPages || totalPages === 0);
+            }
+        }
+
+        function filterTable() {
+            const input = document.getElementById('searchInput');
+            searchText = input.value;
+            currentPage = 1;
+            renderTable();
+        }
+
+        function renderCharts() {
+            const revenueByModel = {};
+            rawData.forEach(r => {
+                if (revenueByModel[r.model]) {
+                    revenueByModel[r.model] += r.total;
+                } else {
+                    revenueByModel[r.model] = r.total;
+                }
+            });
+
+            const statusCounts = {};
+            rawData.forEach(r => {
+                const s = r.status || 'Unknown';
+                statusCounts[s] = (statusCounts[s] || 0) + 1;
+            });
+
+            if (charts.revenue) charts.revenue.destroy();
+            if (charts.status) charts.status.destroy();
+
+            const ctxRev = document.getElementById('revenueChart').getContext('2d');
+            charts.revenue = new Chart(ctxRev, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(revenueByModel),
+                    datasets: [{
+                        label: 'รายได้รวม (บาท)',
+                        data: Object.values(revenueByModel),
+                        backgroundColor: '#667eea',
+                        borderRadius: 6,
+                        hoverBackgroundColor: '#764ba2'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, grid: { borderDash: [2, 2] } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            const ctxStat = document.getElementById('statusChart').getContext('2d');
+            charts.status = new Chart(ctxStat, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusCounts),
+                    datasets: [{
+                        data: Object.values(statusCounts),
+                        backgroundColor: ['#48bb78', '#ecc94b', '#4299e1', '#a0aec0'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.toggle('hidden');
+            const storedUrl = localStorage.getItem('carRentalSheetUrl');
+            if(storedUrl) {
+                document.getElementById('sheetUrl').value = storedUrl;
+            } else {
+                document.getElementById('sheetUrl').value = DEFAULT_SHEET_URL;
+            }
+        }
+
+        function saveSettings() {
+            let url = document.getElementById('sheetUrl').value.trim();
+            if(url) {
+                if (url.includes('/edit') || url.includes('usp=sharing')) {
+                    const idMatch = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+                    if (idMatch && idMatch[1]) {
+                        const newUrl = `https://docs.google.com/spreadsheets/d/${idMatch[1]}/export?format=csv`;
+                        console.log("Converted to Export URL for real-time fetch");
+                        url = newUrl;
+                        document.getElementById('sheetUrl').value = url;
+                    }
+                }
+
+                localStorage.setItem('carRentalSheetUrl', url);
+                showStatus('บันทึกแล้ว กำลังเชื่อมต่อ...', false);
+                toggleSettings();
+                
+                const toggle = document.getElementById('autoSyncToggle');
+                if(!toggle.checked) {
+                    toggle.checked = true;
+                    toggleAutoSync();
+                } else {
+                    fetchData();
+                }
+
+            } else {
+                alert("กรุณาใส่ URL");
+            }
+        }
+
+        function useSampleData() {
+            localStorage.removeItem('carRentalSheetUrl');
+            document.getElementById('sheetUrl').value = '';
+            toggleSettings();
+            fetchData();
+        }
+
+        function exportWeeklyExcel() {
+            if (!rawData || rawData.length === 0) {
+                alert("ไม่มีข้อมูลสำหรับส่งออก");
+                return;
+            }
+
+            const weeklyData = {};
+
+            const getWeekNumber = (d) => {
+                d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+                d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+                var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+                return `${d.getUTCFullYear()}-W${weekNo}`;
+            };
+
+            const parseDateStr = (dateStr) => {
+                if (!dateStr) return null;
+                const parts = dateStr.split('/');
+                if (parts.length === 3) {
+                    let year = parseInt(parts[2], 10);
+                    if (year < 100) year += 2000;
+                    return new Date(year, parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+                }
+                return null;
+            };
+
+            rawData.forEach(item => {
+                const dateObj = parseDateStr(item.startDate);
+                if (dateObj) {
+                    const weekKey = getWeekNumber(dateObj);
+                    if (!weeklyData[weekKey]) {
+                        weeklyData[weekKey] = {
+                            week: weekKey,
+                            items: [],
+                            totalRevenue: 0
+                        };
+                    }
+                    weeklyData[weekKey].items.push(item);
+                    weeklyData[weekKey].totalRevenue += item.total;
+                }
+            });
+
+            const exportData = [];
+            const sortedWeeks = Object.keys(weeklyData).sort().reverse(); 
+
+            sortedWeeks.forEach(weekKey => {
+                const weekGroup = weeklyData[weekKey];
+                exportData.push({
+                    'สัปดาห์': `Week ${weekKey}`,
+                    'รายการ': `รวม ${weekGroup.items.length} รายการ`,
+                    'รายรับรวม': weekGroup.totalRevenue
+                });
+
+                weekGroup.items.forEach(item => {
+                    exportData.push({
+                        'สัปดาห์': item.startDate,
+                        'รายการ': `${item.model} (${item.plate}) - ${item.customer}`,
+                        'รายรับรวม': item.total,
+                        'สถานะ': item.status
+                    });
+                });
+                exportData.push({});
+            });
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(exportData);
+
+            ws['!cols'] = [
+                { wch: 15 }, 
+                { wch: 40 }, 
+                { wch: 15 }, 
+                { wch: 15 } 
+            ];
+
+            XLSX.utils.book_append_sheet(wb, ws, "Weekly Report");
+            const fileName = `CarRental_Weekly_Report_${new Date().toISOString().slice(0,10)}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+        }
+
+        // INIT application
+        window.onload = () => {
+            checkAuth();
+        };
+
+    </script>
+</body>
+</html>
