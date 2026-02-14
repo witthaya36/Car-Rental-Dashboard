@@ -54,8 +54,6 @@
         .animate-fade-in-down {
             animation: fadeInDown 0.3s ease-out forwards;
         }
-
-        /* Removed Mobile Card View Logic to allow Table Scroll */
         
         /* License Plate Style - No Border as requested */
         .license-plate {
@@ -103,8 +101,8 @@
             
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="username ">
-                        <i class="fa-solid fa-user mr-1"></i> ชื่อผู้ใช้งาน 
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                        <i class="fa-solid fa-user mr-1"></i> ชื่อผู้ใช้งาน
                     </label>
                     <input class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition" id="username" type="text" placeholder="Username" required>
                 </div>
@@ -239,7 +237,7 @@
                     <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-indigo-500"></div>
                     <div class="flex flex-col md:flex-row justify-between items-start">
                         <div>
-                            <p class="text-xs md:text-sm font-medium text-gray-500">ยอดเงินหมุนเวียน</p>
+                            <p class="text-xs md:text-sm font-medium text-gray-500">ยอดเงินรวม+บวกมัดจำ</p>
                             <h3 class="text-lg md:text-3xl font-bold text-gray-800 mt-1 md:mt-2" id="totalRevenue">0 ฿</h3>
                         </div>
                         <div class="hidden md:block p-3 bg-indigo-100 rounded-full text-indigo-600">
@@ -354,11 +352,11 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">เบอร์โทร</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">วันเช่า - วันคืน</th>
                                 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">จำนวนวัน</th>
-                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">หมวก</th>
-                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">ค่าเช่ารถ</th>
-                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">มัดจำ</th>
-                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">ยอดรวม</th>
-                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">สถานะ</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">หมวก</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">ค่าเช่า(รวม)</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">มัดจำ</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">ยอดเงินรวม+บวกมัดจำ</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">สถานะ</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="tableBody">
@@ -451,7 +449,7 @@
         // 1. DATA HANDLING
         // ---------------------------------------------------------
 
-        const DEFAULT_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1a2Pz7NOBuzswKGB-AyYdwXXDG6QhBWzSDkSoBUhnKiU/export?format=csv';
+        const DEFAULT_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1lYUiYZD-RJypgDBWJaDDOpgYepKcFkrdJitF3APLmOs/export?format=csv';
 
         const COLUMN_MAP = {
             id: 0, 
@@ -464,17 +462,17 @@
             endDate: 7, 
             time: 8, 
             duration: 9, 
-            rate: 10, 
+            rentalFee: 10, // Changed from rate to rentalFee (Total Rental Fee)
             deposit: 11, 
-            total: 12, 
+            total: 12, // Rental + Deposit
             status: 13, 
             helmet: 14
         };
 
-        const SAMPLE_CSV_DATA = `ลำดับ,รุ่นรถ ,ทะเบียน , สีรถ,ชื่อลูกค้า,เบอร์โทรติดต่อ,วันเช่า,วันคืน,เวลา,จำนวนวัน,ค่าเช่า/วัน,มัดจำ (DP),ยอดรวม,สถานะ,หมวก
-1,ADV 160,7068,แดง,คุณสมชาย,081-111-1111,29/01/26,12/02/26,15:00,14,215,"3,000","6,010",คืนแล้ว,1 ใบ
-2,Forza,1222,ดำ,O,089-999-9999,10/02/26,13/02/26,14:00,3,600,"1,000","2,800",กำลังเช่า,2 ใบ
-3,Forza,5555,น้ำเงิน,O,086-666-6666,11/02/26,14/02/26,15:00,3,600,"1,000","2,800",จอง,1 ใบ`;
+        const SAMPLE_CSV_DATA = `ลำดับ,รุ่นรถ ,ทะเบียน , สีรถ,ชื่อลูกค้า,เบอร์โทรติดต่อ,วันเช่า,วันคืน,เวลา,จำนวนวัน,ค่าเช่ารวม,มัดจำ (DP),ยอดรวม,สถานะ,หมวก
+1,ADV 160,7068,แดง,คุณสมชาย,081-111-1111,29/01/26,12/02/26,15:00,14,3010,"3,000","6,010",คืนแล้ว,1 ใบ
+2,Forza,1222,ดำ,O,089-999-9999,10/02/26,13/02/26,14:00,3,1800,"1,000","2,800",กำลังเช่า,2 ใบ
+3,Forza,5555,น้ำเงิน,O,086-666-6666,11/02/26,14/02/26,15:00,3,1800,"1,000","2,800",จอง,1 ใบ`;
 
         let rawData = [];
         let charts = {};
@@ -563,9 +561,9 @@
                     startDate: r[COLUMN_MAP.startDate] || '-',
                     endDate: r[COLUMN_MAP.endDate] || '-',
                     duration: r[COLUMN_MAP.duration] ? r[COLUMN_MAP.duration].trim() : '-',
-                    rate: parseCurrency(r[COLUMN_MAP.rate]),
-                    total: parseCurrency(r[COLUMN_MAP.total]),
+                    rentalFee: parseCurrency(r[COLUMN_MAP.rentalFee]), // Total Rental Fee
                     deposit: parseCurrency(r[COLUMN_MAP.deposit]),
+                    total: parseCurrency(r[COLUMN_MAP.total]), // Grand Total (Rent + Deposit)
                     status: r[COLUMN_MAP.status] ? r[COLUMN_MAP.status].trim() : 'ไม่ระบุ',
                     helmet: r[COLUMN_MAP.helmet] ? r[COLUMN_MAP.helmet].trim() : '-'
                 }));
@@ -794,6 +792,7 @@
             
             const netIncome = rawData.reduce((acc, curr) => {
                 if (curr.status.includes('คืนแล้ว')) {
+                    // Net income is Total (Rent+Deposit) - Deposit
                     return acc + (curr.total - curr.deposit);
                 }
                 return acc;
@@ -843,6 +842,12 @@
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
+            const statusCounts = {};
+            rawData.forEach(r => {
+                const s = r.status || 'Unknown';
+                statusCounts[s] = (statusCounts[s] || 0) + 1;
+            });
+
             let filteredData = [...rawData].reverse(); 
             
             if (searchText) {
@@ -886,11 +891,13 @@
                 
                 // Colorize Deposit Logic
                 let depositStyle = 'text-red-600 font-bold'; // Default for held deposit
+                let depositIcon = '';
                 let currentTotal = item.total; // Default total
                 
                 if(item.status.includes('คืนแล้ว')) {
                     depositStyle = 'text-green-600 font-medium'; // Returned
-                    currentTotal = item.total - item.deposit; // Deduct deposit if returned
+                    depositIcon = '<i class="fa-solid fa-check text-xs mr-1"></i>';
+                    currentTotal = item.total - item.deposit; // Deduct deposit if returned to show Net Rental Fee
                 }
 
                 const cssColor = getColorCode(item.color || '');
@@ -899,23 +906,23 @@
                 const displayIndex = startIndex + index + 1;
 
                 tr.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${displayIndex}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-bold">${item.model}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" data-label="ลำดับ">${displayIndex}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-bold" data-label="รุ่นรถ">${item.model}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm" data-label="ทะเบียน">
                         <span class="license-plate">${item.plate}</span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600" data-label="สีรถ">
                         <span title="${item.color}" class="inline-flex items-center">
                             <span class="color-dot" style="background-color: ${cssColor}; ${isWhite ? 'border: 1px solid #d1d5db;' : ''}"></span>
                             <span class="ml-1">${item.color}</span>
                         </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${item.customer}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium" data-label="ลูกค้า">${item.customer}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="เบอร์โทร">
                         <i class="fa-solid fa-phone mr-1 text-xs"></i> ${item.phone}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div class="flex flex-row items-center gap-2">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="วันเช่า - วันคืน">
+                        <div class="flex flex-row items-center justify-end md:justify-start gap-2">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200" title="วันเช่า">
                                 <i class="fa-solid fa-calendar-plus mr-1.5 hidden md:inline"></i> ${item.startDate || '-'}
                             </span>
@@ -925,20 +932,20 @@
                             </span>
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600" data-label="จำนวนวัน">
                         <span class="bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md text-xs font-bold border border-indigo-100 shadow-sm">${item.duration} วัน</span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600" data-label="หมวก">
                         <span><i class="fa-solid fa-helmet-safety text-gray-400 mr-1"></i> ${item.helmet}</span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-800 font-medium">
-                        ${item.rate.toLocaleString()} ฿
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-800 font-medium" data-label="ค่าเช่า(รวม)">
+                        ${item.rentalFee.toLocaleString()} ฿
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold text-center ${depositStyle}">${item.deposit.toLocaleString()} ฿</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold text-center">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold text-center ${depositStyle}" data-label="มัดจำ">${depositIcon}${item.deposit.toLocaleString()} ฿</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold text-center" data-label="ยอดเงินรวม+บวกมัดจำ">
                         ${item.status.includes('คืนแล้ว') ? `<span class="text-green-600" title="หักมัดจำแล้ว">${currentTotal.toLocaleString()} ฿</span>` : `${currentTotal.toLocaleString()} ฿`}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <td class="px-6 py-4 whitespace-nowrap text-center status-cell" data-label="สถานะ">
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
                             ${item.status}
                         </span>
@@ -1065,21 +1072,32 @@
                 }
             });
 
+            // Prepare Status Chart Data with Specific Colors
+            const statusLabels = Object.keys(statusCounts);
+            const statusData = Object.values(statusCounts);
+            const statusColors = statusLabels.map(label => {
+                if (label.includes('คืนแล้ว')) return '#22c55e'; // Green
+                if (label.includes('กำลังเช่า') || label.includes('เช่าอยู่')) return '#facc15'; // Yellow
+                if (label.includes('จอง')) return '#3b82f6'; // Blue
+                return '#cbd5e1'; // Grey for others
+            });
+
             const ctxStat = document.getElementById('statusChart').getContext('2d');
             charts.status = new Chart(ctxStat, {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(statusCounts),
+                    labels: statusLabels,
                     datasets: [{
-                        data: Object.values(statusCounts),
-                        backgroundColor: ['#48bb78', '#ecc94b', '#4299e1', '#a0aec0'],
+                        data: statusData,
+                        backgroundColor: statusColors,
                         borderWidth: 0
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } }
+                    plugins: { legend: { position: 'bottom' } },
+                    cutout: '70%'
                 }
             });
         }
