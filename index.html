@@ -169,13 +169,15 @@
                                 <span id="notifyPing" class="hidden absolute top-0 right-0 h-4 w-4 rounded-full bg-red-400 opacity-75 animate-ping-slow"></span>
                             </button>
 
-                            <!-- Notification Dropdown -->
-                            <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-72 md:w-80 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden transform origin-top-right transition-all">
+                            <!-- Notification Dropdown: UPDATED FOR MOBILE FULL VIEW -->
+                            <!-- On mobile: fixed, inset-x-4 (margin 1rem), top-32 (below header), z-[100] -->
+                            <!-- On desktop: absolute, right-0, w-80 -->
+                            <div id="notificationDropdown" class="hidden fixed left-4 right-4 top-32 md:fixed-none md:absolute md:inset-x-auto md:top-full md:right-0 md:mt-2 w-auto md:w-80 bg-white rounded-lg shadow-2xl border border-gray-100 z-[100] overflow-hidden transform origin-top-right transition-all">
                                 <div class="px-4 py-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
                                     <h3 class="text-sm font-bold text-gray-700">แจ้งเตือนคืนรถ</h3>
                                     <span class="text-xs text-gray-500" id="notifyDate"></span>
                                 </div>
-                                <div id="notificationList" class="max-h-64 overflow-y-auto">
+                                <div id="notificationList" class="max-h-[50vh] md:max-h-64 overflow-y-auto">
                                     <div class="p-4 text-center text-sm text-gray-500">ไม่มีการแจ้งเตือน</div>
                                 </div>
                             </div>
@@ -589,17 +591,32 @@
             
             try {
                 let csvText = '';
+                const timestamp = new Date().getTime();
                 const cacheBusterUrl = storedUrl.includes('?') 
-                    ? `${storedUrl}&t=${new Date().getTime()}` 
-                    : `${storedUrl}?t=${new Date().getTime()}`;
+                    ? `${storedUrl}&t=${timestamp}` 
+                    : `${storedUrl}?t=${timestamp}`;
                 
-                const proxyUrl1 = `https://api.allorigins.win/raw?url=${encodeURIComponent(cacheBusterUrl)}`;
-                const response = await fetch(proxyUrl1, { cache: 'no-store' });
-                if (!response.ok) throw new Error('Network response was not ok');
-                csvText = await response.text();
+                // Attempt 1: Try AllOrigins Proxy
+                try {
+                    const proxyUrl1 = `https://api.allorigins.win/raw?url=${encodeURIComponent(cacheBusterUrl)}`;
+                    const response = await fetch(proxyUrl1, { cache: 'no-store' });
+                    if (!response.ok) throw new Error('Proxy 1 failed');
+                    csvText = await response.text();
+                } catch (err1) {
+                    console.warn("Proxy 1 failed, trying fallback...", err1);
+                    // Attempt 2: Try CORS Proxy (Fallback)
+                    const proxyUrl2 = `https://corsproxy.io/?${encodeURIComponent(cacheBusterUrl)}`;
+                    const response = await fetch(proxyUrl2, { cache: 'no-store' });
+                    if (!response.ok) throw new Error('All proxies failed');
+                    csvText = await response.text();
+                }
+
+                if (!csvText || csvText.trim().length === 0) {
+                     throw new Error("ได้รับข้อมูลว่างเปล่า");
+                }
 
                 if (csvText.trim().toLowerCase().startsWith('<!doctype html') || csvText.includes('<html')) {
-                    throw new Error("ลิงก์ไม่ถูกต้อง: ระบบได้รับหน้าเว็บ HTML แทนที่จะเป็นไฟล์ CSV");
+                    throw new Error("ลิงก์ไม่ถูกต้อง: ระบบได้รับหน้าเว็บ HTML แทนที่จะเป็นไฟล์ CSV (ตรวจสอบสิทธิ์การแชร์ต้องเป็น 'Public/ทุกคนที่มีลิงก์')");
                 }
 
                 rawData = processData(csvText);
@@ -611,7 +628,11 @@
 
             } catch (error) {
                 console.error("Fetch error:", error);
-                if (!isSilent) showStatus(`<strong>เกิดข้อผิดพลาด:</strong> ${error.message}`, true);
+                let errorMsg = error.message;
+                if (errorMsg.includes('Failed to fetch') || errorMsg.includes('All proxies failed')) {
+                    errorMsg = "ไม่สามารถดึงข้อมูลได้ (Network Error) กรุณาลองกดปุ่มอัปเดตใหม่อีกครั้ง";
+                }
+                if (!isSilent) showStatus(`<strong>เกิดข้อผิดพลาด:</strong> ${errorMsg}`, true);
             } finally {
                 isFetching = false;
                 if (!isSilent) {
@@ -933,8 +954,8 @@
             pagesToShow.forEach(p => {
                 const btn = document.createElement('button');
                 if (p === '...') {
-                     btn.className = "relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300";
-                     btn.innerText = '...';
+                      btn.className = "relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300";
+                      btn.innerText = '...';
                 } else {
                     const isActive = p === currentPage;
                     btn.className = isActive 
