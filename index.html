@@ -248,13 +248,13 @@
 
                 <!-- Net Income -->
                 <div class="glass-panel p-4 md:p-6 relative overflow-hidden">
-                    <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-teal-500"></div>
+                    <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-green-500"></div>
                     <div class="flex flex-col md:flex-row justify-between items-start">
                         <div>
                             <p class="text-xs md:text-sm font-medium text-gray-500">รายได้สุทธิ (หักมัดจำ)</p>
-                            <h3 class="text-lg md:text-3xl font-bold text-teal-600 mt-1 md:mt-2" id="netIncome">0 ฿</h3>
+                            <h3 class="text-lg md:text-3xl font-bold text-green-600 mt-1 md:mt-2" id="netIncome">0 ฿</h3>
                         </div>
-                        <div class="hidden md:block p-3 bg-teal-100 rounded-full text-teal-600">
+                        <div class="hidden md:block p-3 bg-green-100 rounded-full text-green-600">
                             <i class="fa-solid fa-coins text-xl"></i>
                         </div>
                     </div>
@@ -262,13 +262,13 @@
 
                 <!-- Active Rentals -->
                 <div class="glass-panel p-4 md:p-6 relative overflow-hidden">
-                    <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-orange-500"></div>
+                    <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-yellow-400"></div>
                     <div class="flex flex-col md:flex-row justify-between items-start">
                         <div>
                             <p class="text-xs md:text-sm font-medium text-gray-500">รถที่กำลังเช่าอยู่</p>
                             <h3 class="text-lg md:text-3xl font-bold text-gray-800 mt-1 md:mt-2" id="activeRentals">0 คัน</h3>
                         </div>
-                        <div class="hidden md:block p-3 bg-orange-100 rounded-full text-orange-600">
+                        <div class="hidden md:block p-3 bg-yellow-100 rounded-full text-yellow-600">
                             <i class="fa-solid fa-clock text-xl"></i>
                         </div>
                     </div>
@@ -276,13 +276,13 @@
 
                 <!-- Total Deposit -->
                 <div class="glass-panel p-4 md:p-6 relative overflow-hidden">
-                    <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-green-500"></div>
+                    <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-red-500"></div>
                     <div class="flex flex-col md:flex-row justify-between items-start">
                         <div>
                             <p class="text-xs md:text-sm font-medium text-gray-500">เงินมัดจำ (ที่ถืออยู่)</p>
                             <h3 class="text-lg md:text-3xl font-bold text-gray-800 mt-1 md:mt-2" id="totalDeposit">0 ฿</h3>
                         </div>
-                        <div class="hidden md:block p-3 bg-green-100 rounded-full text-green-600">
+                        <div class="hidden md:block p-3 bg-red-100 rounded-full text-red-600">
                             <i class="fa-solid fa-hand-holding-dollar text-xl"></i>
                         </div>
                     </div>
@@ -352,11 +352,11 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">เบอร์โทร</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">วันเช่า - วันคืน</th>
                                 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">จำนวนวัน</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">หมวก</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">ค่าเช่า(รวม)</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">มัดจำ</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">ยอดเงินรวม+บวกมัดจำ</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">สถานะ</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">หมวก</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">ค่าเช่า(รวม)</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">มัดจำ</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">ยอดเงินรวม+บวกมัดจำ</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">สถานะ</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="tableBody">
@@ -462,17 +462,12 @@
             endDate: 7, 
             time: 8, 
             duration: 9, 
-            rentalFee: 10, // Changed from rate to rentalFee (Total Rental Fee)
+            rentalFee: 10,
             deposit: 11, 
-            total: 12, // Rental + Deposit
+            total: 12,
             status: 13, 
             helmet: 14
         };
-
-        const SAMPLE_CSV_DATA = `ลำดับ,รุ่นรถ ,ทะเบียน , สีรถ,ชื่อลูกค้า,เบอร์โทรติดต่อ,วันเช่า,วันคืน,เวลา,จำนวนวัน,ค่าเช่ารวม,มัดจำ (DP),ยอดรวม,สถานะ,หมวก
-1,ADV 160,7068,แดง,คุณสมชาย,081-111-1111,29/01/26,12/02/26,15:00,14,3010,"3,000","6,010",คืนแล้ว,1 ใบ
-2,Forza,1222,ดำ,O,089-999-9999,10/02/26,13/02/26,14:00,3,1800,"1,000","2,800",กำลังเช่า,2 ใบ
-3,Forza,5555,น้ำเงิน,O,086-666-6666,11/02/26,14/02/26,15:00,3,1800,"1,000","2,800",จอง,1 ใบ`;
 
         let rawData = [];
         let charts = {};
@@ -495,7 +490,6 @@
                 } else {
                     el.className = "bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 mx-auto max-w-7xl mt-4 rounded shadow-sm";
                 }
-                // Auto hide after 5 seconds if success
                 if (!isError) setTimeout(() => el.classList.add('hidden'), 5000);
             } else {
                 el.classList.add('hidden');
@@ -561,9 +555,9 @@
                     startDate: r[COLUMN_MAP.startDate] || '-',
                     endDate: r[COLUMN_MAP.endDate] || '-',
                     duration: r[COLUMN_MAP.duration] ? r[COLUMN_MAP.duration].trim() : '-',
-                    rentalFee: parseCurrency(r[COLUMN_MAP.rentalFee]), // Total Rental Fee
+                    rentalFee: parseCurrency(r[COLUMN_MAP.rentalFee]),
                     deposit: parseCurrency(r[COLUMN_MAP.deposit]),
-                    total: parseCurrency(r[COLUMN_MAP.total]), // Grand Total (Rent + Deposit)
+                    total: parseCurrency(r[COLUMN_MAP.total]),
                     status: r[COLUMN_MAP.status] ? r[COLUMN_MAP.status].trim() : 'ไม่ระบุ',
                     helmet: r[COLUMN_MAP.helmet] ? r[COLUMN_MAP.helmet].trim() : '-'
                 }));
@@ -599,31 +593,10 @@
                     ? `${storedUrl}&t=${new Date().getTime()}` 
                     : `${storedUrl}?t=${new Date().getTime()}`;
                 
-                try {
-                    const proxyUrl1 = `https://api.allorigins.win/raw?url=${encodeURIComponent(cacheBusterUrl)}`;
-                    const response1 = await fetch(proxyUrl1, { cache: 'no-store' });
-                    if (response1.ok) {
-                        csvText = await response1.text();
-                    } else {
-                        throw new Error('AllOrigins failed');
-                    }
-                } catch (proxyError1) {
-                    console.warn("Proxy 1 failed, trying Proxy 2...", proxyError1);
-                    try {
-                        const proxyUrl2 = `https://corsproxy.io/?${encodeURIComponent(cacheBusterUrl)}`;
-                        const response2 = await fetch(proxyUrl2, { cache: 'no-store' });
-                        if (response2.ok) {
-                            csvText = await response2.text();
-                        } else {
-                             throw new Error('CORSProxy failed');
-                        }
-                    } catch (proxyError2) {
-                         console.warn("Proxy 2 failed, trying direct fetch...", proxyError2);
-                         const response3 = await fetch(cacheBusterUrl, { cache: 'no-store' });
-                         if (!response3.ok) throw new Error(`Direct error ${response3.status}`);
-                         csvText = await response3.text();
-                    }
-                }
+                const proxyUrl1 = `https://api.allorigins.win/raw?url=${encodeURIComponent(cacheBusterUrl)}`;
+                const response = await fetch(proxyUrl1, { cache: 'no-store' });
+                if (!response.ok) throw new Error('Network response was not ok');
+                csvText = await response.text();
 
                 if (csvText.trim().toLowerCase().startsWith('<!doctype html') || csvText.includes('<html')) {
                     throw new Error("ลิงก์ไม่ถูกต้อง: ระบบได้รับหน้าเว็บ HTML แทนที่จะเป็นไฟล์ CSV");
@@ -638,18 +611,7 @@
 
             } catch (error) {
                 console.error("Fetch error:", error);
-                
-                let errorMsg = error.message;
-                if(errorMsg.includes('Failed to fetch') || errorMsg.includes('Connection failed')) {
-                    errorMsg = "ไม่สามารถเชื่อมต่อ Google Sheet ได้ (ติดสิทธิ์การเข้าถึงหรือ CORS)";
-                }
-                
-                if (!isSilent || errorMsg.includes('ลิงก์ไม่ถูกต้อง') || errorMsg.includes('ไม่สามารถเชื่อมต่อ')) {
-                    showStatus(`<strong>เกิดข้อผิดพลาด:</strong> ${errorMsg}<br><span class="text-xs">กำลังลองใหม่ในครั้งถัดไป...</span>`, true);
-                    if(errorMsg.includes('ลิงก์ไม่ถูกต้อง')) {
-                         document.getElementById('settingsPanel').classList.remove('hidden');
-                    }
-                }
+                if (!isSilent) showStatus(`<strong>เกิดข้อผิดพลาด:</strong> ${error.message}`, true);
             } finally {
                 isFetching = false;
                 if (!isSilent) {
@@ -659,16 +621,11 @@
             }
         }
 
-        // ---------------------------------------------------------
-        // 2. AUTO SYNC LOGIC
-        // ---------------------------------------------------------
-
         function toggleAutoSync() {
             const toggle = document.getElementById('autoSyncToggle');
             const indicator = document.getElementById('syncIndicator');
             
             if (toggle.checked) {
-                const storedUrl = localStorage.getItem('carRentalSheetUrl') || DEFAULT_SHEET_URL;
                 indicator.className = 'ml-2 w-2 h-2 rounded-full bg-green-500 animate-pulse-green transition-all duration-300';
                 fetchData(true); 
                 autoSyncInterval = setInterval(() => {
@@ -688,14 +645,33 @@
             checkNotifications();
         }
 
+        // --- SMART DATE PARSING ---
         function parseDate(dateStr) {
-            if (!dateStr) return null;
+            if (!dateStr || dateStr === '-') return null;
             try {
                 const parts = dateStr.split('/');
                 if (parts.length === 3) {
+                    const day = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10) - 1; // JS months are 0-11
                     let year = parseInt(parts[2], 10);
-                    if (year < 100) year += 2000;
-                    return new Date(year, parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+                    
+                    // Logic to handle 2-digit years and Thai BE
+                    if (year < 100) {
+                        if (year > 50) {
+                            // Assume it's BE year (e.g., 69 -> 2569)
+                            year += 2500 - 543; // Convert BE to AD
+                        } else {
+                            // Assume it's AD year (e.g., 26 -> 2026)
+                            year += 2000;
+                        }
+                    } else if (year > 2400) {
+                        // Assume it's 4-digit BE year
+                        year -= 543;
+                    }
+                    
+                    const date = new Date(year, month, day);
+                    if (isNaN(date.getTime())) return null;
+                    return date;
                 }
             } catch (e) {
                 console.error("Date parse error", e);
@@ -710,23 +686,26 @@
             alerts = []; 
 
             rawData.forEach(item => {
-                if (item.status.includes('เช่าอยู่') || item.status.includes('กำลังเช่า')) {
+                const s = item.status.toLowerCase();
+                if (s.includes('กำลังเช่า') || s.includes('เช่าอยู่')) {
                     const returnDate = parseDate(item.endDate);
                     if (returnDate) {
-                        const timeDiff = returnDate - today;
-                        const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                        const timeDiff = returnDate.getTime() - today.getTime();
+                        const daysDiff = Math.round(timeDiff / (1000 * 60 * 60 * 24));
 
                         if (daysDiff < 0) {
                             alerts.push({
                                 type: 'overdue',
                                 item: item,
-                                msg: `เกินกำหนด ${Math.abs(daysDiff)} วัน`
+                                msg: `เกินกำหนด ${Math.abs(daysDiff)} วัน`,
+                                dateStr: item.endDate
                             });
                         } else if (daysDiff === 0) {
                             alerts.push({
                                 type: 'due',
                                 item: item,
-                                msg: `รุ่นรถ ${item.model} ทะเบียน ${item.plate}`
+                                msg: `ครบกำหนดคืนวันนี้`,
+                                dateStr: item.endDate
                             });
                         }
                     }
@@ -736,7 +715,7 @@
             const badge = document.getElementById('notifyBadge');
             const ping = document.getElementById('notifyPing');
             const list = document.getElementById('notificationList');
-            document.getElementById('notifyDate').innerText = today.toLocaleDateString('th-TH');
+            document.getElementById('notifyDate').innerText = new Date().toLocaleDateString('th-TH');
 
             if (alerts.length > 0) {
                 badge.innerText = alerts.length;
@@ -747,20 +726,26 @@
                 alerts.forEach(alert => {
                     const isOverdue = alert.type === 'overdue';
                     const colorClass = isOverdue ? 'bg-red-50 text-red-700 border-red-200' : 'bg-orange-50 text-orange-700 border-orange-200';
-                    const icon = isOverdue ? 'fa-circle-exclamation' : 'fa-clock';
-                    const showSubtitle = isOverdue; 
+                    const icon = isOverdue ? 'fa-circle-exclamation' : 'fa-bell';
 
                     const div = document.createElement('div');
                     div.className = `p-3 border-b ${colorClass} border-opacity-50 last:border-b-0`;
                     div.innerHTML = `
                         <div class="flex justify-between items-start">
-                            <div>
-                                <div class="font-bold text-sm"><i class="fa-solid ${icon} mr-1"></i> ${alert.msg}</div>
-                                ${showSubtitle ? `<div class="text-xs mt-1 font-semibold">${alert.item.model} (${alert.item.plate})</div>` : ''}
-                                <div class="text-xs mt-0.5 opacity-80">ลูกค้า: ${alert.item.customer}</div>
+                            <div class="flex-1">
+                                <div class="font-bold text-sm leading-tight"><i class="fa-solid ${icon} mr-1.5"></i> ${alert.msg}</div>
+                                <div class="text-xs mt-1 font-semibold text-gray-700">
+                                    <i class="fa-solid fa-car-side mr-1 opacity-50"></i>${alert.item.model} (${alert.item.plate})
+                                </div>
+                                <div class="text-[10px] mt-0.5 opacity-80">
+                                    <i class="fa-solid fa-user mr-1 opacity-50"></i>ลูกค้า: ${alert.item.customer}
+                                </div>
                             </div>
-                            <div class="text-xs font-mono bg-white bg-opacity-50 px-1 rounded ml-2 whitespace-nowrap">
-                                ${alert.item.endDate}
+                            <div class="ml-3">
+                                <div class="bg-white bg-opacity-70 border border-current border-opacity-20 px-2 py-1 rounded shadow-sm text-center">
+                                    <div class="text-[9px] uppercase font-bold opacity-60">กำหนดคืน</div>
+                                    <div class="text-xs font-mono font-bold leading-none mt-0.5">${alert.dateStr}</div>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -770,7 +755,7 @@
             } else {
                 badge.classList.add('hidden');
                 ping.classList.add('hidden');
-                list.innerHTML = `<div class="p-4 text-center text-sm text-gray-500"><i class="fa-regular fa-calendar-check text-2xl mb-2 text-green-400 block"></i>ไม่มีรายการต้องคืนวันนี้</div>`;
+                list.innerHTML = `<div class="p-6 text-center text-sm text-gray-500"><i class="fa-regular fa-calendar-check text-3xl mb-2 text-green-400 block"></i>ไม่มีรายการต้องคืนวันนี้</div>`;
             }
         }
 
@@ -789,23 +774,9 @@
 
         function updateKPIs() {
             const totalRevenue = rawData.reduce((acc, curr) => acc + curr.total, 0);
-            
-            const netIncome = rawData.reduce((acc, curr) => {
-                if (curr.status.includes('คืนแล้ว')) {
-                    // Net income is Total (Rent+Deposit) - Deposit
-                    return acc + (curr.total - curr.deposit);
-                }
-                return acc;
-            }, 0);
-
-            const activeRentals = rawData.filter(r => r.status.includes('เช่าอยู่') || r.status.includes('Active') || r.status.includes('กำลังเช่า')).length;
-            
-            const totalDeposit = rawData.reduce((acc, curr) => {
-                if (curr.status.includes('จอง') || curr.status.includes('เช่าอยู่') || curr.status.includes('กำลังเช่า')) {
-                    return acc + curr.deposit;
-                }
-                return acc;
-            }, 0);
+            const netIncome = rawData.reduce((acc, curr) => curr.status.includes('คืนแล้ว') ? acc + (curr.total - curr.deposit) : acc, 0);
+            const activeRentals = rawData.filter(r => r.status.includes('เช่าอยู่') || r.status.includes('กำลังเช่า')).length;
+            const totalDeposit = rawData.reduce((acc, curr) => (curr.status.includes('จอง') || curr.status.includes('เช่าอยู่') || curr.status.includes('กำลังเช่า')) ? acc + curr.deposit : acc, 0);
             
             document.getElementById('totalRevenue').innerText = totalRevenue.toLocaleString() + ' ฿';
             document.getElementById('netIncome').innerText = netIncome.toLocaleString() + ' ฿';
@@ -821,19 +792,9 @@
 
         function getColorCode(thaiColorName) {
             const colorMap = {
-                'แดง': '#ef4444',
-                'ดำ': '#1f2937',
-                'ขาว': '#ffffff',
-                'น้ำเงิน': '#3b82f6',
-                'เหลือง': '#eab308',
-                'เขียว': '#22c55e',
-                'เทา': '#6b7280',
-                'บรอนซ์': '#9ca3af',
-                'ส้ม': '#f97316',
-                'ชมพู': '#ec4899',
-                'ม่วง': '#a855f7',
-                'ฟ้า': '#06b6d4',
-                'ทอง': '#d97706'
+                'แดง': '#ef4444', 'ดำ': '#1f2937', 'ขาว': '#ffffff', 'น้ำเงิน': '#3b82f6',
+                'เหลือง': '#eab308', 'เขียว': '#22c55e', 'เทา': '#6b7280', 'บรอนซ์': '#9ca3af',
+                'ส้ม': '#f97316', 'ชมพู': '#ec4899', 'ม่วง': '#a855f7', 'ฟ้า': '#06b6d4', 'ทอง': '#d97706'
             };
             return colorMap[thaiColorName.trim()] || '#94a3b8';
         }
@@ -842,14 +803,7 @@
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
-            const statusCounts = {};
-            rawData.forEach(r => {
-                const s = r.status || 'Unknown';
-                statusCounts[s] = (statusCounts[s] || 0) + 1;
-            });
-
             let filteredData = [...rawData].reverse(); 
-            
             if (searchText) {
                 const lowerSearch = searchText.toLowerCase();
                 filteredData = filteredData.filter(item => 
@@ -863,7 +817,6 @@
 
             const totalRows = filteredData.length;
             const totalPages = Math.ceil(totalRows / rowsPerPage);
-
             if (currentPage < 1) currentPage = 1;
             if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
 
@@ -885,67 +838,66 @@
                 tr.className = 'hover:bg-indigo-50 transition';
                 
                 let statusColor = 'bg-gray-100 text-gray-800';
-                if(item.status.includes('คืนแล้ว')) statusColor = 'bg-green-100 text-green-800';
-                else if(item.status.includes('เช่าอยู่') || item.status.includes('กำลังเช่า')) statusColor = 'bg-yellow-100 text-yellow-800';
-                else if(item.status.includes('จอง')) statusColor = 'bg-blue-100 text-blue-800';
-                
-                // Colorize Deposit Logic
-                let depositStyle = 'text-red-600 font-bold'; // Default for held deposit
+                let depositStyle = 'text-red-600 font-bold';
                 let depositIcon = '';
-                let currentTotal = item.total; // Default total
+                let currentTotal = item.total;
                 
                 if(item.status.includes('คืนแล้ว')) {
-                    depositStyle = 'text-green-600 font-medium'; // Returned
+                    statusColor = 'bg-green-100 text-green-800';
+                    depositStyle = 'text-green-600 font-medium';
                     depositIcon = '<i class="fa-solid fa-check text-xs mr-1"></i>';
-                    currentTotal = item.total - item.deposit; // Deduct deposit if returned to show Net Rental Fee
+                    currentTotal = item.total - item.deposit;
+                } else if(item.status.includes('กำลังเช่า') || item.status.includes('เช่าอยู่')) {
+                    statusColor = 'bg-yellow-200 text-yellow-800';
+                } else if(item.status.includes('จอง')) {
+                    statusColor = 'bg-blue-100 text-blue-800';
                 }
 
                 const cssColor = getColorCode(item.color || '');
                 const isWhite = cssColor === '#ffffff';
-
                 const displayIndex = startIndex + index + 1;
 
                 tr.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" data-label="ลำดับ">${displayIndex}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-bold" data-label="รุ่นรถ">${item.model}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm" data-label="ทะเบียน">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${displayIndex}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-bold">
+                         <i class="fa-solid fa-car text-gray-400 text-xs mr-1"></i>${item.model}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
                         <span class="license-plate">${item.plate}</span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600" data-label="สีรถ">
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
                         <span title="${item.color}" class="inline-flex items-center">
                             <span class="color-dot" style="background-color: ${cssColor}; ${isWhite ? 'border: 1px solid #d1d5db;' : ''}"></span>
                             <span class="ml-1">${item.color}</span>
                         </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium" data-label="ลูกค้า">${item.customer}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="เบอร์โทร">
-                        <i class="fa-solid fa-phone mr-1 text-xs"></i> ${item.phone}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="วันเช่า - วันคืน">
-                        <div class="flex flex-row items-center justify-end md:justify-start gap-2">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200" title="วันเช่า">
-                                <i class="fa-solid fa-calendar-plus mr-1.5 hidden md:inline"></i> ${item.startDate || '-'}
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${item.customer}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><i class="fa-solid fa-phone mr-1 text-xs"></i> ${item.phone}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex flex-row items-center gap-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                ${item.startDate || '-'}
                             </span>
                             <i class="fa-solid fa-arrow-right-long text-gray-400 text-xs"></i>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200" title="วันคืน">
-                                <i class="fa-solid fa-calendar-minus mr-1.5 hidden md:inline"></i> ${item.endDate || '-'}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                                ${item.endDate || '-'}
                             </span>
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600" data-label="จำนวนวัน">
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
                         <span class="bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md text-xs font-bold border border-indigo-100 shadow-sm">${item.duration} วัน</span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600" data-label="หมวก">
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
                         <span><i class="fa-solid fa-helmet-safety text-gray-400 mr-1"></i> ${item.helmet}</span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-800 font-medium" data-label="ค่าเช่า(รวม)">
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-800 font-medium">
                         ${item.rentalFee.toLocaleString()} ฿
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold text-center ${depositStyle}" data-label="มัดจำ">${depositIcon}${item.deposit.toLocaleString()} ฿</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold text-center" data-label="ยอดเงินรวม+บวกมัดจำ">
-                        ${item.status.includes('คืนแล้ว') ? `<span class="text-green-600" title="หักมัดจำแล้ว">${currentTotal.toLocaleString()} ฿</span>` : `${currentTotal.toLocaleString()} ฿`}
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold text-center ${depositStyle}">${depositIcon}${item.deposit.toLocaleString()} ฿</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold text-center">
+                        ${item.status.includes('คืนแล้ว') ? `<span class="text-green-600">${currentTotal.toLocaleString()} ฿</span>` : `${currentTotal.toLocaleString()} ฿`}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center status-cell" data-label="สถานะ">
+                    <td class="px-6 py-4 whitespace-nowrap text-center status-cell">
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
                             ${item.status}
                         </span>
@@ -964,277 +916,108 @@
             const nav = document.getElementById('paginationNumbers');
             nav.innerHTML = '';
             
-            // Previous Button
             const prevBtn = document.createElement('button');
-            prevBtn.className = "relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 " + (currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100');
-            prevBtn.innerHTML = '<span class="sr-only">Previous</span><i class="fa-solid fa-chevron-left h-5 w-5"></i>';
+            prevBtn.className = "relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 " + (currentPage === 1 ? 'opacity-50' : 'hover:bg-gray-100');
+            prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left h-5 w-5"></i>';
             prevBtn.onclick = () => { if(currentPage > 1) changePage(currentPage - 1); };
             nav.appendChild(prevBtn);
 
             let pagesToShow = [];
-            if (totalPages <= 7) {
-                for (let i = 1; i <= totalPages; i++) pagesToShow.push(i);
-            } else {
-                if (currentPage <= 4) {
-                    pagesToShow = [1, 2, 3, 4, 5, '...', totalPages];
-                } else if (currentPage >= totalPages - 3) {
-                    pagesToShow = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
-                } else {
-                    pagesToShow = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
-                }
+            if (totalPages <= 7) { for (let i = 1; i <= totalPages; i++) pagesToShow.push(i); }
+            else {
+                if (currentPage <= 4) { pagesToShow = [1, 2, 3, 4, 5, '...', totalPages]; }
+                else if (currentPage >= totalPages - 3) { pagesToShow = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages]; }
+                else { pagesToShow = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages]; }
             }
 
             pagesToShow.forEach(p => {
                 const btn = document.createElement('button');
                 if (p === '...') {
-                     btn.className = "relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0";
+                     btn.className = "relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300";
                      btn.innerText = '...';
                 } else {
                     const isActive = p === currentPage;
                     btn.className = isActive 
-                        ? "relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                        : "relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0";
+                        ? "relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20"
+                        : "relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50";
                     btn.innerText = p;
                     btn.onclick = () => changePage(p);
                 }
                 nav.appendChild(btn);
             });
 
-            // Next Button
             const nextBtn = document.createElement('button');
-            nextBtn.className = "relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 " + (currentPage === totalPages || totalPages === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100');
-            nextBtn.innerHTML = '<span class="sr-only">Next</span><i class="fa-solid fa-chevron-right h-5 w-5"></i>';
+            nextBtn.className = "relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 " + (currentPage === totalPages ? 'opacity-50' : 'hover:bg-gray-100');
+            nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right h-5 w-5"></i>';
             nextBtn.onclick = () => { if(currentPage < totalPages) changePage(currentPage + 1); };
             nav.appendChild(nextBtn);
-            
-            // Update Mobile Buttons too
-            const btnPrevMobile = document.getElementById('btnPrevMobile');
-            const btnNextMobile = document.getElementById('btnNextMobile');
-            
-            if (btnPrevMobile) {
-                btnPrevMobile.disabled = currentPage === 1;
-                btnPrevMobile.classList.toggle('opacity-50', currentPage === 1);
-            }
-            
-            if (btnNextMobile) {
-                btnNextMobile.disabled = currentPage === totalPages || totalPages === 0;
-                btnNextMobile.classList.toggle('opacity-50', currentPage === totalPages || totalPages === 0);
-            }
         }
 
         function filterTable() {
-            const input = document.getElementById('searchInput');
-            searchText = input.value;
+            searchText = document.getElementById('searchInput').value;
             currentPage = 1;
             renderTable();
         }
 
         function renderCharts() {
             const revenueByModel = {};
-            rawData.forEach(r => {
-                if (revenueByModel[r.model]) {
-                    revenueByModel[r.model] += r.total;
-                } else {
-                    revenueByModel[r.model] = r.total;
-                }
-            });
-
+            rawData.forEach(r => revenueByModel[r.model] = (revenueByModel[r.model] || 0) + r.total);
             const statusCounts = {};
-            rawData.forEach(r => {
-                const s = r.status || 'Unknown';
-                statusCounts[s] = (statusCounts[s] || 0) + 1;
-            });
+            rawData.forEach(r => statusCounts[r.status] = (statusCounts[r.status] || 0) + 1);
 
             if (charts.revenue) charts.revenue.destroy();
             if (charts.status) charts.status.destroy();
 
-            const ctxRev = document.getElementById('revenueChart').getContext('2d');
-            charts.revenue = new Chart(ctxRev, {
+            charts.revenue = new Chart(document.getElementById('revenueChart').getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: Object.keys(revenueByModel),
-                    datasets: [{
-                        label: 'รายได้รวม (บาท)',
-                        data: Object.values(revenueByModel),
-                        backgroundColor: '#667eea',
-                        borderRadius: 6,
-                        hoverBackgroundColor: '#764ba2'
-                    }]
+                    datasets: [{ label: 'รายได้รวม (บาท)', data: Object.values(revenueByModel), backgroundColor: '#667eea', borderRadius: 6 }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true, grid: { borderDash: [2, 2] } },
-                        x: { grid: { display: false } }
-                    },
-                    plugins: { legend: { display: false } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
 
-            // Prepare Status Chart Data with Specific Colors
             const statusLabels = Object.keys(statusCounts);
-            const statusData = Object.values(statusCounts);
             const statusColors = statusLabels.map(label => {
-                if (label.includes('คืนแล้ว')) return '#22c55e'; // Green
-                if (label.includes('กำลังเช่า') || label.includes('เช่าอยู่')) return '#facc15'; // Yellow
-                if (label.includes('จอง')) return '#3b82f6'; // Blue
-                return '#cbd5e1'; // Grey for others
+                if (label.includes('คืนแล้ว')) return '#22c55e';
+                if (label.includes('กำลังเช่า') || label.includes('เช่าอยู่')) return '#facc15';
+                if (label.includes('จอง')) return '#3b82f6';
+                return '#cbd5e1';
             });
 
-            const ctxStat = document.getElementById('statusChart').getContext('2d');
-            charts.status = new Chart(ctxStat, {
+            charts.status = new Chart(document.getElementById('statusChart').getContext('2d'), {
                 type: 'doughnut',
-                data: {
-                    labels: statusLabels,
-                    datasets: [{
-                        data: statusData,
-                        backgroundColor: statusColors,
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } },
-                    cutout: '70%'
-                }
+                data: { labels: statusLabels, datasets: [{ data: Object.values(statusCounts), backgroundColor: statusColors, borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '70%' }
             });
         }
 
-        function toggleSettings() {
-            const panel = document.getElementById('settingsPanel');
-            panel.classList.toggle('hidden');
-            const storedUrl = localStorage.getItem('carRentalSheetUrl');
-            if(storedUrl) {
-                document.getElementById('sheetUrl').value = storedUrl;
-            } else {
-                document.getElementById('sheetUrl').value = DEFAULT_SHEET_URL;
-            }
-        }
+        function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('hidden'); }
 
         function saveSettings() {
             let url = document.getElementById('sheetUrl').value.trim();
             if(url) {
-                if (url.includes('/edit') || url.includes('usp=sharing')) {
+                if (url.includes('/edit')) {
                     const idMatch = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-                    if (idMatch && idMatch[1]) {
-                        const newUrl = `https://docs.google.com/spreadsheets/d/${idMatch[1]}/export?format=csv`;
-                        console.log("Converted to Export URL for real-time fetch");
-                        url = newUrl;
-                        document.getElementById('sheetUrl').value = url;
-                    }
+                    if (idMatch) url = `https://docs.google.com/spreadsheets/d/${idMatch[1]}/export?format=csv`;
                 }
-
                 localStorage.setItem('carRentalSheetUrl', url);
-                showStatus('บันทึกแล้ว กำลังเชื่อมต่อ...', false);
                 toggleSettings();
-                
-                const toggle = document.getElementById('autoSyncToggle');
-                if(!toggle.checked) {
-                    toggle.checked = true;
-                    toggleAutoSync();
-                } else {
-                    fetchData();
-                }
-
-            } else {
-                alert("กรุณาใส่ URL");
+                fetchData();
             }
         }
 
-        function useSampleData() {
-            localStorage.removeItem('carRentalSheetUrl');
-            document.getElementById('sheetUrl').value = '';
-            toggleSettings();
-            fetchData();
-        }
+        function useSampleData() { localStorage.removeItem('carRentalSheetUrl'); fetchData(); }
 
         function exportWeeklyExcel() {
-            if (!rawData || rawData.length === 0) {
-                alert("ไม่มีข้อมูลสำหรับส่งออก");
-                return;
-            }
-
-            const weeklyData = {};
-
-            const getWeekNumber = (d) => {
-                d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-                d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-                var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-                var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-                return `${d.getUTCFullYear()}-W${weekNo}`;
-            };
-
-            const parseDateStr = (dateStr) => {
-                if (!dateStr) return null;
-                const parts = dateStr.split('/');
-                if (parts.length === 3) {
-                    let year = parseInt(parts[2], 10);
-                    if (year < 100) year += 2000;
-                    return new Date(year, parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
-                }
-                return null;
-            };
-
-            rawData.forEach(item => {
-                const dateObj = parseDateStr(item.startDate);
-                if (dateObj) {
-                    const weekKey = getWeekNumber(dateObj);
-                    if (!weeklyData[weekKey]) {
-                        weeklyData[weekKey] = {
-                            week: weekKey,
-                            items: [],
-                            totalRevenue: 0
-                        };
-                    }
-                    weeklyData[weekKey].items.push(item);
-                    weeklyData[weekKey].totalRevenue += item.total;
-                }
-            });
-
-            const exportData = [];
-            const sortedWeeks = Object.keys(weeklyData).sort().reverse(); 
-
-            sortedWeeks.forEach(weekKey => {
-                const weekGroup = weeklyData[weekKey];
-                exportData.push({
-                    'สัปดาห์': `Week ${weekKey}`,
-                    'รายการ': `รวม ${weekGroup.items.length} รายการ`,
-                    'รายรับรวม': weekGroup.totalRevenue
-                });
-
-                weekGroup.items.forEach(item => {
-                    exportData.push({
-                        'สัปดาห์': item.startDate,
-                        'รายการ': `${item.model} (${item.plate}) - ${item.customer}`,
-                        'รายรับรวม': item.total,
-                        'สถานะ': item.status
-                    });
-                });
-                exportData.push({});
-            });
-
+            if (!rawData.length) return;
             const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(exportData);
-
-            ws['!cols'] = [
-                { wch: 15 }, 
-                { wch: 40 }, 
-                { wch: 15 }, 
-                { wch: 15 } 
-            ];
-
-            XLSX.utils.book_append_sheet(wb, ws, "Weekly Report");
-            const fileName = `CarRental_Weekly_Report_${new Date().toISOString().slice(0,10)}.xlsx`;
-            XLSX.writeFile(wb, fileName);
+            const ws = XLSX.utils.json_to_sheet(rawData);
+            XLSX.utils.book_append_sheet(wb, ws, "RentalData");
+            XLSX.writeFile(wb, `CarRental_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
 
-        // INIT application
-        window.onload = () => {
-            checkAuth();
-        };
-
+        window.onload = checkAuth;
     </script>
 </body>
 </html>
