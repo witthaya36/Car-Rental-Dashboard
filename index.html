@@ -234,7 +234,7 @@
             
             <!-- KPI Cards -->
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-6 mb-6 md:mb-8">
-                <!-- Total Revenue -->
+                <!-- 1. Total Revenue -->
                 <div class="glass-panel p-4 md:p-6 relative overflow-hidden group">
                     <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-indigo-500"></div>
                     <div class="flex flex-col md:flex-row justify-between items-start">
@@ -248,7 +248,7 @@
                     </div>
                 </div>
 
-                <!-- Total Rental Fee (Was Net Income) -->
+                <!-- 2. Total Rental Fee -->
                 <div class="glass-panel p-4 md:p-6 relative overflow-hidden">
                     <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-green-500"></div>
                     <div class="flex flex-col md:flex-row justify-between items-start">
@@ -262,21 +262,7 @@
                     </div>
                 </div>
 
-                <!-- Active Rentals -->
-                <div class="glass-panel p-4 md:p-6 relative overflow-hidden">
-                    <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-yellow-400"></div>
-                    <div class="flex flex-col md:flex-row justify-between items-start">
-                        <div>
-                            <p class="text-xs md:text-sm font-medium text-gray-500">รถที่กำลังเช่าอยู่</p>
-                            <h3 class="text-lg md:text-3xl font-bold text-gray-800 mt-1 md:mt-2" id="activeRentals">0 คัน</h3>
-                        </div>
-                        <div class="hidden md:block p-3 bg-yellow-100 rounded-full text-yellow-600">
-                            <i class="fa-solid fa-clock text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Total Deposit -->
+                <!-- 3. Total Deposit -->
                 <div class="glass-panel p-4 md:p-6 relative overflow-hidden">
                     <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-red-500"></div>
                     <div class="flex flex-col md:flex-row justify-between items-start">
@@ -290,7 +276,21 @@
                     </div>
                 </div>
 
-                <!-- Total Cars -->
+                <!-- 4. Active Rentals (RIGHT SIDE) -->
+                <div class="glass-panel p-4 md:p-6 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-yellow-400"></div>
+                    <div class="flex flex-col md:flex-row justify-between items-start">
+                        <div>
+                            <p class="text-xs md:text-sm font-medium text-gray-500">รถที่กำลังเช่าอยู่</p>
+                            <h3 class="text-lg md:text-3xl font-bold text-gray-800 mt-1 md:mt-2" id="activeRentals">0 คัน</h3>
+                        </div>
+                        <div class="hidden md:block p-3 bg-yellow-100 rounded-full text-yellow-600">
+                            <i class="fa-solid fa-clock text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Total Cars (RIGHT SIDE) -->
                 <div class="glass-panel p-4 md:p-6 relative overflow-hidden">
                     <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-blue-500"></div>
                     <div class="flex flex-col md:flex-row justify-between items-start">
