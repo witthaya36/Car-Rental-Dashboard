@@ -248,12 +248,12 @@
                     </div>
                 </div>
 
-                <!-- Net Income -->
+                <!-- Total Rental Fee (Was Net Income) -->
                 <div class="glass-panel p-4 md:p-6 relative overflow-hidden">
                     <div class="absolute right-0 top-0 h-full w-1.5 md:w-2 bg-green-500"></div>
                     <div class="flex flex-col md:flex-row justify-between items-start">
                         <div>
-                            <p class="text-xs md:text-sm font-medium text-gray-500">รายได้สุทธิ (หักมัดจำ)</p>
+                            <p class="text-xs md:text-sm font-medium text-gray-500">ค่าเช่า (รวม)</p>
                             <h3 class="text-lg md:text-3xl font-bold text-green-600 mt-1 md:mt-2" id="netIncome">0 ฿</h3>
                         </div>
                         <div class="hidden md:block p-3 bg-green-100 rounded-full text-green-600">
@@ -795,12 +795,14 @@
 
         function updateKPIs() {
             const totalRevenue = rawData.reduce((acc, curr) => acc + curr.total, 0);
-            const netIncome = rawData.reduce((acc, curr) => curr.status.includes('คืนแล้ว') ? acc + (curr.total - curr.deposit) : acc, 0);
+            // UPDATED LOGIC: Calculate total sum of "Rental Fee" (ค่าเช่ารวม) column instead of Net Income
+            const netIncome = rawData.reduce((acc, curr) => acc + curr.rentalFee, 0);
+            
             const activeRentals = rawData.filter(r => r.status.includes('เช่าอยู่') || r.status.includes('กำลังเช่า')).length;
             const totalDeposit = rawData.reduce((acc, curr) => (curr.status.includes('จอง') || curr.status.includes('เช่าอยู่') || curr.status.includes('กำลังเช่า')) ? acc + curr.deposit : acc, 0);
             
             document.getElementById('totalRevenue').innerText = totalRevenue.toLocaleString() + ' ฿';
-            document.getElementById('netIncome').innerText = netIncome.toLocaleString() + ' ฿';
+            document.getElementById('netIncome').innerText = netIncome.toLocaleString() + ' ฿'; // Showing Total Rental Fee here now
             document.getElementById('activeRentals').innerText = activeRentals + ' คัน';
             document.getElementById('totalDeposit').innerText = totalDeposit.toLocaleString() + ' ฿';
             document.getElementById('totalTransactions').innerText = rawData.length + ' รายการ';
